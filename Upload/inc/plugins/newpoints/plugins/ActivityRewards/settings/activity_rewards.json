@@ -1,0 +1,14 @@
+{
+  "action_name": {
+    "type": "text",
+    "value": "activity_rewards"
+  },
+  "manage_groups": {
+    "type": "groupselect",
+    "value": 4
+  },
+  "menu_order": {
+    "type": "numeric",
+    "value": 160
+  }
+}

@@ -26,18 +26,4 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-$l = [
-    'setting_group_ougc_points_activity_rewards' => 'OUGC Points Activity Rewards',
-    'ougc_points_activity_rewards_menu' => 'Activity Rewards',
-    'ougc_points_activity_rewards_amount' => 'Requirement',
-    'ougc_points_activity_rewards_points' => 'Reward Points',
-    'ougc_points_activity_rewards_hours' => 'Hours Interval',
-    'ougc_points_activity_rewards_type_post' => 'Posts',
-    'ougc_points_activity_rewards_type_thread' => 'Threads',
-    'ougc_points_activity_rewards_type_rep' => 'Reputations',
-    'ougc_points_activity_rewards_empty' => 'There are currently no packages available for you.',
-    'ougc_points_activity_rewards_request' => 'Request',
-    'ougc_points_activity_rewards_error_invalid' => 'The selected package is invalid',
-    'ougc_points_activity_rewards_error_count' => 'You do not meet the package requirements.',
-    'ougc_points_activity_rewards_success' => 'Your request was successful, the points have been added to your account.<br />You will be redirected back to the package list.',
-];
+// deprecated

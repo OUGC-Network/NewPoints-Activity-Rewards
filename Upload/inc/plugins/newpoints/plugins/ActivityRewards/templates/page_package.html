@@ -1,0 +1,36 @@
+<form action="{$mybb->settings['bburl']}/{$page_url}" method="post">
+    <input type="hidden" name="my_post_key" value="{$mybb->post_code}"/>
+    <input type="hidden" name="pid" value="{$package_id}"/>
+    <input type="hidden" name="action" value="{$action_name}"/>
+    <table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+        <tr>
+            <td class="thead" colspan="2"><strong>{$package_title}</strong></td>
+        </tr>
+        <tr>
+            <td class="tcat" colspan="2"><strong>{$package_description}</strong></td>
+        </tr>
+        <tr>
+            <td class="trow1" width="50%"><strong>{$package_type_text}:</strong></td>
+            <td class="trow1" width="50%">
+                {$user_amount} / {$package_amount} {$package_type}
+            </td>
+        </tr>
+        <tr>
+            <td class="trow1" width="50%"><strong>{$lang->newpoints_activity_rewards_page_table_points}:</strong></td>
+            <td class="trow1" width="50%">{$package_points}</td>
+        </tr>
+        <tr>
+            <td class="trow1" width="50%"><strong>{$lang->newpoints_activity_rewards_page_table_hours}:</strong></td>
+            <td class="trow1" width="50%">
+                {$package_hours} {$lang->newpoints_activity_rewards_page_table_hours_hours}
+            </td>
+        </tr>
+        <tr>
+            <td class="tfoot" width="100%" colspan="2" align="center">
+                <input type="submit" name="submit" value="{$lang->newpoints_activity_rewards_page_button_request}"
+                       class="button" {$button_disabled_element}/>
+            </td>
+        </tr>
+    </table>
+</form>
+<br class="clear"/>
