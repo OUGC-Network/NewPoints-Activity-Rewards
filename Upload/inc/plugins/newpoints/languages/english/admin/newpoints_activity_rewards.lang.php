@@ -28,6 +28,7 @@
 
 $l = [
     'newpoints_activity_rewards' => 'Activity Rewards',
+    'newpoints_activity_rewards_desc' => 'Allow users to request points rewards in exchange for activity.',
 
     'setting_group_newpoints_activity_rewards' => 'Activity Rewards',
     'setting_group_newpoints_activity_rewards_desc' => 'Allow users to request points rewards in exchange for activity.',

@@ -139,15 +139,15 @@ function plugin_information(): array
 
     return [
         'name' => 'Activity Rewards',
-        'description' => $lang->newpoints_activity_rewards,
+        'description' => $lang->newpoints_activity_rewards_desc,
         'website' => 'https://ougc.network',
         'author' => 'Omar G.',
         'authorsite' => 'https://ougc.network',
-        'version' => '3.0.0',
+        'version' => '3.1.0',
         'versioncode' => 3100,
         'compatibility' => '31*',
-        'codename' => 'newpoints_activity_rewards'
-        //'codename' => 'ougc_points_activity_rewards'
+        'codename' => 'ougc_points_activity_rewards'
+        //'codename' => 'newpoints_activity_rewards'
     ];
 }
 
