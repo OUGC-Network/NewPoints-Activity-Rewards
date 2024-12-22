@@ -80,46 +80,16 @@ function newpoints_terminate()
 
     $url_params = ['action' => $action_name];
 
-    $is_manage_page = false;
-
-    $mybb->input['manage'] = $mybb->get_input('manage', MyBB::INPUT_INT);
-
-    $is_moderator = is_member(get_setting('activity_rewards_manage_groups'));
-
-    if ($mybb->input['manage'] && $is_moderator) {
-        $url_params['manage'] = 1;
-
-        $is_manage_page = true;
-    }
-
     add_breadcrumb(
         $lang->newpoints_activity_rewards_page_breadcrumb,
         $mybb->settings['bburl'] . '/' . url_handler_build($url_params)
     );
-
-    if ($is_manage_page) {
-        add_breadcrumb(
-            $lang->newpoints_manage_page_breadcrumb
-        );
-    }
 
     $page_url = url_handler_build([
         'action' => $action_name
     ]);
 
     $page_title = $lang->newpoints_activity_rewards_page_title;
-
-    if ($mybb->input['manage']) {
-        $errors = [];
-
-        if ($errors) {
-            $newpoints_errors = inline_error($errors);
-        }
-
-        output_page(eval(\Newpoints\Core\templates_get('page')));
-
-        exit;
-    }
 
     $current_user_id = (int)$mybb->user['uid'];
 
@@ -352,12 +322,6 @@ function newpoints_terminate()
         $newpoints_content = eval(templates_get('page_empty'));
     } else {
         $newpoints_content = eval(templates_get('page_packages'));
-    }
-
-    if ($is_moderator && !$is_manage_page) {
-        $manage_url = url_handler_build(array_merge($url_params, ['manage' => 1]));
-
-        $newpoints_buttons = eval(\Newpoints\Core\templates_get('button_manage'));
     }
 
     output_page(eval(\Newpoints\Core\templates_get('page')));

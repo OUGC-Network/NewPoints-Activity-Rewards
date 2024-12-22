@@ -260,7 +260,8 @@ function plugin_uninstallation(): bool
 
     settings_remove(
         [
-            'action_name'
+            'action_name',
+            'menu_order'
         ],
         'newpoints_activity_rewards_'
     );

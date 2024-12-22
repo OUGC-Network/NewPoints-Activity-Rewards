@@ -33,8 +33,6 @@ $l = [
     'setting_group_newpoints_activity_rewards_desc' => 'Allow users to request points rewards in exchange of activity.',
     'setting_newpoints_activity_rewards_action_name' => 'Action Name',
     'setting_newpoints_activity_rewards_action_name_desc' => 'Select the action input name to use for this feature.',
-    'setting_newpoints_activity_rewards_manage_groups' => 'Manage Groups',
-    'setting_newpoints_activity_rewards_manage_groups_desc' => 'Select the groups that can manage the activity rewards system.',
     'setting_newpoints_activity_rewards_menu_order' => 'Menu Order',
     'setting_newpoints_activity_rewards_menu_order_desc' => 'Order in the Newpoints menu item.',
 

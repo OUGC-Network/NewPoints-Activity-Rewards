@@ -2,7 +2,7 @@
 
 /***************************************************************************
  *
- *    Newpoints Buy Format plugin (/inc/plugins/newpoints/plugins/ougc/ActivityRewards/admin/packages.php)
+ *    Newpoints Buy Format plugin (/inc/plugins/newpoints/plugins/ActivityRewards/admin/packages.php)
  *    Author: Omar Gonzalez
  *    Copyright: © 2020 Omar Gonzalez
  *
