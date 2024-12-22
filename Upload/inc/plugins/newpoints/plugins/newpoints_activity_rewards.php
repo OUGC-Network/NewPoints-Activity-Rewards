@@ -8,7 +8,7 @@
  *
  *    Website: https://ougc.network
  *
- *    Allow users to request points rewards in exchange of activity.
+ *    Allow users to request points rewards in exchange for activity.
  *
  ***************************************************************************
  ****************************************************************************
