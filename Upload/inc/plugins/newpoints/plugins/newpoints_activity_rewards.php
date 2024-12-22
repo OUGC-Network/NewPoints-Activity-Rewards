@@ -2,7 +2,7 @@
 
 /***************************************************************************
  *
- *    OUGC Points Activity Rewards plugin (/inc/plugins/newpoints/plugins/newpoints_activity_rewards.php)
+ *    NewPoints Activity Rewards plugin (/inc/plugins/newpoints/plugins/newpoints_activity_rewards.php)
  *    Author: Omar Gonzalez
  *    Copyright: © 2020 Omar Gonzalez
  *

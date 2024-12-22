@@ -2,13 +2,13 @@
 
 /***************************************************************************
  *
- *    Newpoints Buy Format plugin (/inc/plugins/newpoints/plugins/ougc/ActivityRewards/admin/formats.php)
+ *    Newpoints Buy Format plugin (/inc/plugins/newpoints/plugins/ougc/ActivityRewards/admin/packages.php)
  *    Author: Omar Gonzalez
- *    Copyright: © 2012 Omar Gonzalez
+ *    Copyright: © 2020 Omar Gonzalez
  *
  *    Website: https://ougc.network
  *
- *    Allow users to buy username format styles predefined by administrators.
+ *    Allow users to request points rewards in exchange of activity.
  *
  ***************************************************************************
  ****************************************************************************
@@ -26,7 +26,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-use function Newpoints\ActivityRewards\Core\cache_rebuild;
 use function Newpoints\ActivityRewards\Core\cache_update;
 use function Newpoints\ActivityRewards\Core\package_delete;
 use function Newpoints\Core\language_load;
@@ -34,7 +33,8 @@ use function Newpoints\Core\url_handler_build;
 use function Newpoints\Core\url_handler_get;
 use function Newpoints\Core\url_handler_set;
 
-use const Newpoints\ActivityRewards\Admin\TABLES_DATA;
+use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_FORUM_TYPE_ANY;
+use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_FORUM_TYPE_ALL;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_POSTS;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_REPUTATION;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_THREADS;
@@ -121,7 +121,7 @@ if ($mybb->get_input('action') === 'delete') {
         $query = $db->simple_select('newpoints_activity_rewards_packages', '*', "pid='{$package_id}'");
 
         if (!($package_data = $db->fetch_array($query))) {
-            admin_redirect(\Newpoints\Core\url_handler_get());
+            admin_redirect(url_handler_get());
         }
     }
 
@@ -146,9 +146,15 @@ if ($mybb->get_input('action') === 'delete') {
                 'amount' => (int)$mybb->get_input('amount', MyBB::INPUT_INT),
                 'points' => (float)$mybb->get_input('points', MyBB::INPUT_FLOAT),
                 'groups' => implode(',', $mybb->get_input('groups', MyBB::INPUT_ARRAY)),
+                'forums' => implode(',', $mybb->get_input('forums', MyBB::INPUT_ARRAY)),
+                'forums_type' => (int)$mybb->get_input('forums_type', MyBB::INPUT_INT),
+                'forums_type_amount' => (int)$mybb->get_input('forums_type_amount', MyBB::INPUT_INT),
                 'hours' => (int)$mybb->get_input('hours', MyBB::INPUT_INT)
-
             ];
+
+            if ($update_data['forums_type_amount'] > $update_data['amount']) {
+                $update_data['forums_type_amount'] = $update_data['amount'];
+            }
 
             if ($add_page) {
                 $package_id = $db->insert_query('newpoints_activity_rewards_packages', $update_data);
@@ -156,7 +162,7 @@ if ($mybb->get_input('action') === 'delete') {
                 $db->update_query('newpoints_activity_rewards_packages', $update_data, "pid='{$package_id}'");
             }
 
-            \Newpoints\ActivityRewards\Core\cache_update();
+            cache_update();
 
             if ($add_page) {
                 flash_message($lang->newpoints_activity_rewards_admin_success_add_package, 'success');
@@ -164,7 +170,7 @@ if ($mybb->get_input('action') === 'delete') {
                 flash_message($lang->newpoints_activity_rewards_admin_success_updated_package, 'success');
             }
 
-            admin_redirect(\Newpoints\Core\url_handler_build(['action' => 'edit', 'package_id' => $package_id]));
+            admin_redirect(url_handler_build(['action' => 'edit', 'package_id' => $package_id]));
         }
     }
 
@@ -178,7 +184,21 @@ if ($mybb->get_input('action') === 'delete') {
         $form_url = url_handler_build(['action' => 'edit', 'package_id' => $package_id]);
     }
 
-    foreach (['title', 'description', 'type', 'active', 'amount', 'points', 'groups', 'hours'] as $key) {
+    foreach (
+        [
+            'title',
+            'description',
+            'type',
+            'active',
+            'amount',
+            'points',
+            'groups',
+            'forums',
+            'forums_type',
+            'forums_type_amount',
+            'hours'
+        ] as $key
+    ) {
         if (!isset($mybb->input[$key])) {
             if (isset($package_data[$key])) {
                 $mybb->input[$key] = $package_data[$key];
@@ -190,7 +210,11 @@ if ($mybb->get_input('action') === 'delete') {
 
     $form = new Form($form_url, 'post', 'newpoints_activity_rewards');
 
-    $form_container = new FormContainer($lang->newpoints_activity_rewards_admin_add_info);
+    if ($add_page) {
+        $form_container = new FormContainer($lang->newpoints_activity_rewards_admin_add_info);
+    } else {
+        $form_container = new FormContainer($lang->newpoints_activity_rewards_admin_edit_info);
+    }
 
     $form_container->output_row(
         $lang->newpoints_activity_rewards_admin_add_name,
@@ -248,14 +272,57 @@ if ($mybb->get_input('action') === 'delete') {
         )
     );
 
+    if (!is_array($mybb->input['groups'])) {
+        $mybb->input['groups'] = explode(',', $mybb->input['groups']);
+    }
+
     $form_container->output_row(
         $lang->newpoints_activity_rewards_admin_add_groups,
         $lang->newpoints_activity_rewards_admin_add_groups_desc,
         $form->generate_group_select(
             'groups[]',
-            explode(',', $mybb->get_input('groups')),
+            $mybb->get_input('groups', \MyBB::INPUT_ARRAY),
             ['multiple' => true]
         )
+    );
+
+    if (!is_array($mybb->input['forums'])) {
+        $mybb->input['forums'] = explode(',', $mybb->input['forums']);
+    }
+
+    $form_container->output_row(
+        $lang->newpoints_activity_rewards_admin_add_forums,
+        $lang->newpoints_activity_rewards_admin_add_forums_desc,
+        $form->generate_forum_select(
+            'forums[]',
+            $mybb->get_input('forums', \MyBB::INPUT_ARRAY),
+            ['multiple' => true]
+        )
+    );
+
+    $form_container->output_row(
+        $lang->newpoints_activity_rewards_admin_add_forums_type,
+        $lang->newpoints_activity_rewards_admin_add_forums_type_desc,
+        $form->generate_select_box(
+            'forums_type',
+            [
+                ACTIVITY_REWARDS_FORUM_TYPE_ANY => $lang->newpoints_activity_rewards_admin_add_forums_type_any,
+                ACTIVITY_REWARDS_FORUM_TYPE_ALL => $lang->newpoints_activity_rewards_admin_add_forums_type_all,
+            ],
+            [$mybb->get_input('forums_type', MyBB::INPUT_INT)],
+            ['id' => 'select_forums_type']
+        )
+    );
+
+    $form_container->output_row(
+        $lang->newpoints_activity_rewards_admin_add_forums_type_amount,
+        $lang->newpoints_activity_rewards_admin_add_forums_type_amount_desc,
+        $form->generate_numeric_field(
+            'forums_type_amount',
+            $mybb->get_input('forums_type_amount', MyBB::INPUT_INT)
+        ),
+        '',
+        ['id' => 'row_forums_type_amount']
     );
 
     $form_container->output_row(
@@ -271,13 +338,24 @@ if ($mybb->get_input('action') === 'delete') {
 
     $buttons = [];
 
-    $buttons[] = $form->generate_submit_button($lang->newpoints_activity_rewards_admin_add_submit);
+    if ($add_page) {
+        $buttons[] = $form->generate_submit_button($lang->newpoints_activity_rewards_admin_add_submit);
+    } else {
+        $buttons[] = $form->generate_submit_button($lang->newpoints_activity_rewards_admin_edit_submit);
+    }
 
     $buttons[] = $form->generate_reset_button($lang->reset);
 
     $form->output_submit_wrapper($buttons);
 
     $form->end();
+
+    echo '<script type="text/javascript" src="./jscripts/peeker.js?ver=1821"></script>
+	<script type="text/javascript">
+		$(function() {
+				new Peeker($("#select_forums_type"), $("#row_forums_type_amount"), ' . ACTIVITY_REWARDS_FORUM_TYPE_ALL . ');
+		});
+	</script>';
 
     $page->output_footer();
 } else {

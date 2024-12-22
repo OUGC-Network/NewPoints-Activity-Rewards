@@ -4,11 +4,11 @@
  *
  *    NewPoints Activity Rewards plugin (/inc/plugins/ActivityRewards/admin.php)
  *    Author: Omar Gonzalez
- *    Copyright: © 2024 Omar Gonzalez
+ *    Copyright: © 2020 Omar Gonzalez
  *
  *    Website: https://ougc.network
  *
- *    Require users to spend points to rate posts using the Custom Rates plugin.
+ *    Allow users to request points rewards in exchange of activity.
  *
  ***************************************************************************
  ****************************************************************************
@@ -90,6 +90,20 @@ const TABLES_DATA = [
         'groups' => [
             'type' => 'TEXT',
             'null' => true
+        ],
+        'forums' => [
+            'type' => 'TEXT',
+            'null' => true
+        ],
+        'forums_type' => [
+            'type' => 'TINYINT',
+            'unsigned' => true,
+            'default' => 1
+        ],
+        'forums_type_amount' => [
+            'type' => 'INT',
+            'unsigned' => true,
+            'default' => 0
         ],
         'hours' => [
             'type' => 'INT',
@@ -217,9 +231,9 @@ function plugin_activation(): bool
 
     /*~*~* RUN UPDATES END *~*~*/
 
-    cache_update();
-
     db_verify_tables(TABLES_DATA);
+
+    cache_update();
 
     plugins_version_update('activity_rewards', $new_version);
 

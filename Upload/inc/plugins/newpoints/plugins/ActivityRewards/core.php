@@ -2,7 +2,7 @@
 
 /***************************************************************************
  *
- *    OUGC Points Activity Rewards plugin (/inc/plugins/newpoints/plugins/ActivityRewards/core.php)
+ *    NewPoints Activity Rewards plugin (/inc/plugins/newpoints/plugins/ActivityRewards/core.php)
  *    Author: Omar Gonzalez
  *    Copyright: © 2020 Omar Gonzalez
  *
@@ -38,6 +38,10 @@ const ACTIVITY_REWARDS_TYPE_POSTS = 2;
 
 const ACTIVITY_REWARDS_TYPE_REPUTATION = 3;
 
+const ACTIVITY_REWARDS_FORUM_TYPE_ANY = 1;
+
+const ACTIVITY_REWARDS_FORUM_TYPE_ALL = 2;
+
 function templates_get(string $template_name = '', bool $enable_html_comments = true): string
 {
     return \Newpoints\Core\templates_get($template_name, $enable_html_comments, ROOT, 'activity_rewards_');
@@ -49,7 +53,7 @@ function cache_update(): array
 
     $query = $db->simple_select(
         'newpoints_activity_rewards_packages',
-        'pid, title, description, type, amount, points, groups, hours',
+        'pid, title, description, type, amount, points, groups, forums, forums_type, forums_type_amount, hours',
         "active='1' AND points>'0'"
     );
 
@@ -63,6 +67,9 @@ function cache_update(): array
             'amount' => (int)$package_data['amount'],
             'points' => (float)$package_data['points'],
             'groups' => $package_data['groups'],
+            'forums' => $package_data['forums'],
+            'forums_type' => (int)$package_data['forums_type'],
+            'forums_type_amount' => (int)$package_data['forums_type_amount'],
             'hours' => (int)$package_data['hours']
         ];
     }
@@ -85,7 +92,7 @@ function cache_get(): array
     return $packages_cache;
 }
 
-function get_activity_count(int $package_id): int
+function get_user_activity_amount(int $package_id): int
 {
     global $db, $mybb;
 
@@ -99,30 +106,112 @@ function get_activity_count(int $package_id): int
 
     $user_amount = 0;
 
+    $where_clauses = $forums_ids = [];
+
+    $forum_type = 0;
+
+    if (!empty($package_data['forums'])) {
+        $forums_ids = array_map('intval', explode(',', $package_data['forums']));
+
+        if (!empty($forums_ids)) {
+            $forums_ids_imploded = implode("','", $forums_ids);
+
+            $where_clauses[] = "p.fid IN ('{$forums_ids_imploded}')";
+
+            $forum_type = (int)$package_data['forums_type'];
+        }
+    }
+
     switch ($package_data['type']) {
-        case ACTIVITY_REWARDS_TYPE_POSTS:
+        case ACTIVITY_REWARDS_TYPE_THREADS:
+            $where_clauses[] = "t.uid='{$current_user_id}'";
+
+            $where_clauses[] = "t.dateline>'{$interval}'";
+
+            $where_clauses[] = "t.visible='1'";
+
+            $query_options = [];
+
+            if ($forum_type === ACTIVITY_REWARDS_FORUM_TYPE_ALL) {
+                $query_options['group_by'] = 'fid';
+            }
+
             $query = $db->simple_select(
-                'posts p LEFT JOIN ' . $db->table_prefix . 'threads t ON(p.tid=t.tid)',
-                'COUNT(p.pid) as total_posts',
-                "p.uid='{$current_user_id}' AND p.dateline>'{$interval}' AND p.visible='1' AND t.visible='1'"
+                "threads t LEFT JOIN {$db->table_prefix}posts p ON(p.pid=t.firstpost)",
+                't.fid, COUNT(t.tid) as total_threads',
+                implode(' AND ', $where_clauses),
+                $query_options
             );
-            $user_amount = (int)$db->fetch_field($query, 'total_posts');
+
+            if ($forum_type === ACTIVITY_REWARDS_FORUM_TYPE_ALL) {
+                $forum_posts = [];
+
+                while ($post_data = $db->fetch_array($query)) {
+                    if ($post_data['total_threads'] < $package_data['forums_type_amount']) {
+                        continue;
+                    }
+
+                    $forum_posts[(int)$post_data['fid']] = (int)$post_data['total_threads'];
+                }
+
+                if (count(array_intersect($forums_ids, array_keys($forum_posts))) === count($forums_ids)) {
+                    $user_amount = array_sum($forum_posts);
+                }
+            } elseif ($forum_type === ACTIVITY_REWARDS_FORUM_TYPE_ANY) {
+                $user_amount = (int)$db->fetch_field($query, 'total_threads');
+            }
 
             break;
-        case ACTIVITY_REWARDS_TYPE_THREADS:
+        case ACTIVITY_REWARDS_TYPE_POSTS:
+            $where_clauses[] = "p.uid='{$current_user_id}'";
+
+            $where_clauses[] = "p.dateline>'{$interval}'";
+
+            $where_clauses[] = "p.visible='1'";
+
+            $where_clauses[] = "t.visible='1'";
+
+            $query_options = [];
+
+            if ($forum_type === ACTIVITY_REWARDS_FORUM_TYPE_ALL) {
+                $query_options['group_by'] = 'p.fid';
+            }
+
             $query = $db->simple_select(
-                'threads',
-                'COUNT(tid) as total_threads',
-                "uid='{$current_user_id}' AND dateline>'{$interval}' AND visible='1'"
+                "posts p LEFT JOIN {$db->table_prefix}threads t ON(t.tid=p.tid)",
+                'p.fid, COUNT(p.pid) as total_posts',
+                implode(' AND ', $where_clauses),
+                $query_options
             );
 
-            $user_amount = (int)$db->fetch_field($query, 'total_threads');
+            if ($forum_type === ACTIVITY_REWARDS_FORUM_TYPE_ALL) {
+                $forum_posts = [];
+
+                while ($post_data = $db->fetch_array($query)) {
+                    if ($post_data['total_posts'] < $package_data['forums_type_amount']) {
+                        continue;
+                    }
+
+                    $forum_posts[(int)$post_data['fid']] = (int)$post_data['total_posts'];
+                }
+
+                if (count(array_intersect($forums_ids, array_keys($forum_posts))) === count($forums_ids)) {
+                    $user_amount = array_sum($forum_posts);
+                }
+            } elseif ($forum_type === ACTIVITY_REWARDS_FORUM_TYPE_ANY) {
+                $user_amount = (int)$db->fetch_field($query, 'total_posts');
+            }
+
             break;
         case ACTIVITY_REWARDS_TYPE_REPUTATION:
+            $where_clauses[] = "r.uid='{$current_user_id}'";
+
+            $where_clauses[] = "r.dateline>'{$interval}'";
+
             $query = $db->simple_select(
-                'reputation',
-                'SUM(reputation) as total_reputation',
-                "uid='{$current_user_id}' AND dateline>'{$interval}'"
+                "reputation r LEFT JOIN {$db->table_prefix}posts p ON(p.pid=r.pid)",
+                'SUM(r.reputation) as total_reputation',
+                implode(' AND ', $where_clauses)
             );
 
             $user_amount = (int)$db->fetch_field($query, 'total_reputation');

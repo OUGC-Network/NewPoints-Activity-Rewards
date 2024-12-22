@@ -43,6 +43,13 @@ $l = [
     'newpoints_activity_rewards_page_table_points' => 'Reward Points',
     'newpoints_activity_rewards_page_table_hours' => 'Reward Interval',
     'newpoints_activity_rewards_page_table_hours_hours' => 'hours',
+    'newpoints_activity_rewards_page_table_forums' => 'Forums',
+    'newpoints_activity_rewards_page_table_forums_note_thread_any' => 'Any thread in the following forums is accounted for.',
+    'newpoints_activity_rewards_page_table_forums_note_thread_all' => 'At least {1} thread(s) in each forum is required.',
+    'newpoints_activity_rewards_page_table_forums_note_post_any' => 'Any post in the following forums is accounted for.',
+    'newpoints_activity_rewards_page_table_forums_note_post_all' => 'At least {1} post(s) in each forum is required.',
+    'newpoints_activity_rewards_page_table_forums_note_reputation_any' => 'Any reputation from the following forums is accounted for.',
+    'newpoints_activity_rewards_page_table_forums_note_reputation_all' => 'At least {1} reputation(s) from each forum is required.',
 
     'newpoints_activity_rewards_page_button_request' => 'Request Reward',
     'newpoints_activity_rewards_page_button_request_confirm' => 'Confirm Request',

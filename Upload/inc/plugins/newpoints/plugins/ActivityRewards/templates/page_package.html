@@ -10,21 +10,22 @@
             <td class="tcat" colspan="2"><strong>{$package_description}</strong></td>
         </tr>
         <tr>
-            <td class="trow1" width="50%"><strong>{$package_type_text}:</strong></td>
-            <td class="trow1" width="50%">
+            <td class="trow1" width="20%"><strong>{$package_type_text}:</strong></td>
+            <td class="trow1">
                 {$user_amount} / {$package_amount} {$package_type}
             </td>
         </tr>
         <tr>
-            <td class="trow1" width="50%"><strong>{$lang->newpoints_activity_rewards_page_table_points}:</strong></td>
-            <td class="trow1" width="50%">{$package_points}</td>
+            <td class="trow2" width="20%"><strong>{$lang->newpoints_activity_rewards_page_table_points}:</strong></td>
+            <td class="trow2">{$package_points}</td>
         </tr>
         <tr>
-            <td class="trow1" width="50%"><strong>{$lang->newpoints_activity_rewards_page_table_hours}:</strong></td>
-            <td class="trow1" width="50%">
+            <td class="trow1" width="20%"><strong>{$lang->newpoints_activity_rewards_page_table_hours}:</strong></td>
+            <td class="trow1">
                 {$package_hours} {$lang->newpoints_activity_rewards_page_table_hours_hours}
             </td>
         </tr>
+        {$package_forums}
         <tr>
             <td class="tfoot" width="100%" colspan="2" align="center">
                 <input type="submit" name="submit" value="{$lang->newpoints_activity_rewards_page_button_request}"

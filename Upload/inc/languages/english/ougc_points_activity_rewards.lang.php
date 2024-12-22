@@ -2,7 +2,7 @@
 
 /***************************************************************************
  *
- *    OUGC Points Activity Rewards plugin (/inc/languages/english/ougc_points_activity_rewards.lang.php)
+ *    NewPoints Activity Rewards plugin (/inc/languages/english/ougc_points_activity_rewards.lang.php)
  *    Author: Omar Gonzalez
  *    Copyright: © 2020 Omar Gonzalez
  *

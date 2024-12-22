@@ -33,7 +33,7 @@ namespace Newpoints\ActivityRewards\Hooks\Forum;
 use MyBB;
 
 use function Newpoints\ActivityRewards\Core\cache_get;
-use function Newpoints\ActivityRewards\Core\get_activity_count;
+use function Newpoints\ActivityRewards\Core\get_user_activity_amount;
 use function Newpoints\Core\get_setting;
 use function Newpoints\Core\language_load;
 use function Newpoints\Core\log_add;
@@ -41,12 +41,10 @@ use function Newpoints\Core\page_build_purchase_confirmation;
 use function Newpoints\Core\points_add_simple;
 use function Newpoints\Core\points_format;
 use function Newpoints\ActivityRewards\Core\templates_get;
-use function Newpoints\Core\post_parser_parse_message;
 use function Newpoints\Core\url_handler_build;
 
-use function ougc\CustomRates\Core\rateGet;
-use function ougc\CustomRates\Core\rateGetName;
-
+use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_FORUM_TYPE_ANY;
+use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_FORUM_TYPE_ALL;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_POSTS;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_REPUTATION;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_THREADS;
@@ -135,15 +133,15 @@ function newpoints_terminate()
         $package_data = $packages_cache[$package_id] ?? [];
 
         if (empty($package_data) || !is_member($package_data['groups'])) {
-            //error_no_permission();
+            error_no_permission();
         }
 
-        $user_amount = get_activity_count($package_id);
+        $user_amount = get_user_activity_amount($package_id);
 
         $package_amount = $package_data['amount'];
 
         if ($user_amount < $package_amount) {
-            //error_no_permission();
+            error_no_permission();
         }
 
         $package_interval = TIME_NOW - (60 * 60 * $package_data['hours']);
@@ -202,6 +200,8 @@ function newpoints_terminate()
 
     $packages_list_threads = $packages_list_posts = $packages_list_reputations = '';
 
+    $forums_cache = cache_forums();
+
     foreach ($packages_cache as $package_id => $package_data) {
         if (!is_member($package_data['groups'])) {
             continue;
@@ -249,24 +249,91 @@ function newpoints_terminate()
 
         $button_disabled_element = '';
 
-        $user_amount = get_activity_count($package_id);
+        $user_amount = get_user_activity_amount($package_id);
 
         if ($db->num_rows($query)) {
             $button_disabled_element = 'disabled="disabled"';
 
-            //$user_amount = $package_amount;
-            //$user_amount = 0;
-
             if ($user_amount >= $package_amount) {
                 $user_amount -= $package_amount;
             }
-        } elseif ($user_amount < $package_amount) {
+        }
+
+        if ($user_amount < $package_amount) {
             $button_disabled_element = 'disabled="disabled"';
-        } else {
+        }
+
+        if ($user_amount > $package_amount) {
             $user_amount = $package_amount;
         }
 
         $user_amount = my_number_format($user_amount);
+
+        $package_forums = '';
+
+        if (!empty($package_data['forums'])) {
+            $package_forums_ids = explode(',', $package_data['forums']);
+
+            $package_forums_items = [];
+
+            foreach ($package_forums_ids as $forum_id) {
+                $forum_data = $forums_cache[$forum_id] ?? [];
+
+                if (empty($forum_data['active'])) {
+                    continue;
+                }
+
+                $forum_name = htmlspecialchars_uni(strip_tags($forum_data['name']));
+
+                $forum_link = get_forum_link($forum_id);
+
+                $package_forums_items[] = eval(templates_get('page_package_forum_item'));
+            }
+
+            if ($package_forums_items) {
+                if ($package_data['type'] === ACTIVITY_REWARDS_TYPE_THREADS) {
+                    switch ($package_data['forums_type']) {
+                        case ACTIVITY_REWARDS_FORUM_TYPE_ANY:
+                            $package_forums_note = $lang->newpoints_activity_rewards_page_table_forums_note_thread_any;
+                            break;
+                        case ACTIVITY_REWARDS_FORUM_TYPE_ALL:
+                            $package_forums_note = $lang->sprintf(
+                                $lang->newpoints_activity_rewards_page_table_forums_note_thread_all,
+                                $package_data['forums_type_amount']
+                            );
+                            break;
+                    }
+                } elseif ($package_data['type'] === ACTIVITY_REWARDS_TYPE_POSTS) {
+                    switch ($package_data['forums_type']) {
+                        case ACTIVITY_REWARDS_FORUM_TYPE_ANY:
+                            $package_forums_note = $lang->newpoints_activity_rewards_page_table_forums_note_post_any;
+                            break;
+                        case ACTIVITY_REWARDS_FORUM_TYPE_ALL:
+                            $package_forums_note = $lang->sprintf(
+                                $lang->newpoints_activity_rewards_page_table_forums_note_post_all,
+                                $package_data['forums_type_amount']
+                            );
+                            break;
+                    }
+                } elseif ($package_data['type'] === ACTIVITY_REWARDS_TYPE_REPUTATION) {
+                    switch ($package_data['forums_type']) {
+                        case ACTIVITY_REWARDS_FORUM_TYPE_ANY:
+                            $package_forums_note = $lang->newpoints_activity_rewards_page_table_forums_note_reputation_any;
+                            break;
+                        case ACTIVITY_REWARDS_FORUM_TYPE_ALL:
+                            $package_forums_note = $lang->sprintf(
+                                $lang->newpoints_activity_rewards_page_table_forums_note_reputation_all,
+                                $package_data['forums_type_amount']
+                            );
+                            break;
+                    }
+                }
+
+                $package_forum_list = implode($lang->comma, $package_forums_items);
+
+                $package_forums .= eval(templates_get('page_package_forum'));
+            }
+        }
 
         switch ($package_data['type']) {
             case ACTIVITY_REWARDS_TYPE_THREADS:
