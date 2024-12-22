@@ -153,7 +153,9 @@ function newpoints_terminate()
             $current_user_id,
             $package_points,
             $package_id,
-            $package_amount
+            $package_amount,
+            0,
+            \Newpoints\Core\LOGGING_TYPE_INCOME
         );
 
         $db->insert_query('newpoints_activity_rewards_logs', [
