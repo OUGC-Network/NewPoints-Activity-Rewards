@@ -131,7 +131,7 @@ const TABLES_DATA = [
         'dateline' => [
             'type' => 'INT',
             'unsigned' => true,
-            'default' => 24
+            'default' => 0
         ]
     ],
 ];
