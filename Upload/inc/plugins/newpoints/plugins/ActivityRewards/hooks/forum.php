@@ -48,6 +48,7 @@ use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_FORUM_TYPE_ALL;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_POSTS;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_REPUTATION;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_THREADS;
+use const Newpoints\Core\LOGGING_TYPE_INCOME;
 
 function newpoints_global_start(array &$hook_arguments): array
 {
@@ -155,7 +156,7 @@ function newpoints_terminate()
             $package_id,
             $package_amount,
             0,
-            \Newpoints\Core\LOGGING_TYPE_INCOME
+            LOGGING_TYPE_INCOME
         );
 
         $db->insert_query('newpoints_activity_rewards_logs', [
@@ -339,7 +340,8 @@ function newpoints_default_menu(array &$menu): array
 
     $menu[get_setting('activity_rewards_menu_order')] = [
         'action' => get_setting('activity_rewards_action_name'),
-        'lang_string' => 'newpoints_activity_rewards_menu'
+        'lang_string' => 'newpoints_activity_rewards_menu',
+        'category' => 'market',
     ];
 
     return $menu;

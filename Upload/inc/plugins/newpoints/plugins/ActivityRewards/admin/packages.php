@@ -281,7 +281,7 @@ if ($mybb->get_input('action') === 'delete') {
         $lang->newpoints_activity_rewards_admin_add_groups_desc,
         $form->generate_group_select(
             'groups[]',
-            $mybb->get_input('groups', \MyBB::INPUT_ARRAY),
+            $mybb->get_input('groups', MyBB::INPUT_ARRAY),
             ['multiple' => true]
         )
     );
@@ -295,7 +295,7 @@ if ($mybb->get_input('action') === 'delete') {
         $lang->newpoints_activity_rewards_admin_add_forums_desc,
         $form->generate_forum_select(
             'forums[]',
-            $mybb->get_input('forums', \MyBB::INPUT_ARRAY),
+            $mybb->get_input('forums', MyBB::INPUT_ARRAY),
             ['multiple' => true]
         )
     );

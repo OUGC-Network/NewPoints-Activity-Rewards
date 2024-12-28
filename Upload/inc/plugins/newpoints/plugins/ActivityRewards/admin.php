@@ -128,6 +128,11 @@ const TABLES_DATA = [
             'unsigned' => true,
             'default' => 24
         ],
+        'dateline' => [
+            'type' => 'INT',
+            'unsigned' => true,
+            'default' => 24
+        ]
     ],
 ];
 
