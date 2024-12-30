@@ -145,7 +145,7 @@ if ($mybb->get_input('action') === 'delete') {
                 'active' => (int)$mybb->get_input('active', MyBB::INPUT_INT),
                 'amount' => (int)$mybb->get_input('amount', MyBB::INPUT_INT),
                 'points' => (float)$mybb->get_input('points', MyBB::INPUT_FLOAT),
-                'groups' => implode(',', $mybb->get_input('groups', MyBB::INPUT_ARRAY)),
+                'allowed_groups' => implode(',', $mybb->get_input('allowed_groups', MyBB::INPUT_ARRAY)),
                 'forums' => implode(',', $mybb->get_input('forums', MyBB::INPUT_ARRAY)),
                 'forums_type' => (int)$mybb->get_input('forums_type', MyBB::INPUT_INT),
                 'forums_type_amount' => (int)$mybb->get_input('forums_type_amount', MyBB::INPUT_INT),
@@ -192,7 +192,7 @@ if ($mybb->get_input('action') === 'delete') {
             'active',
             'amount',
             'points',
-            'groups',
+            'allowed_groups',
             'forums',
             'forums_type',
             'forums_type_amount',
@@ -272,16 +272,16 @@ if ($mybb->get_input('action') === 'delete') {
         )
     );
 
-    if (!is_array($mybb->input['groups'])) {
-        $mybb->input['groups'] = explode(',', $mybb->input['groups']);
+    if (!is_array($mybb->input['allowed_groups'])) {
+        $mybb->input['allowed_groups'] = explode(',', $mybb->input['allowed_groups']);
     }
 
     $form_container->output_row(
-        $lang->newpoints_activity_rewards_admin_add_groups,
-        $lang->newpoints_activity_rewards_admin_add_groups_desc,
+        $lang->newpoints_activity_rewards_admin_add_allowed_groups,
+        $lang->newpoints_activity_rewards_admin_add_allowed_groups_desc,
         $form->generate_group_select(
-            'groups[]',
-            $mybb->get_input('groups', MyBB::INPUT_ARRAY),
+            'allowed_groups[]',
+            $mybb->get_input('allowed_groups', MyBB::INPUT_ARRAY),
             ['multiple' => true]
         )
     );

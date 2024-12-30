@@ -53,7 +53,7 @@ function cache_update(): array
 
     $query = $db->simple_select(
         'newpoints_activity_rewards_packages',
-        'pid, title, description, type, amount, points, groups, forums, forums_type, forums_type_amount, hours',
+        'pid, title, description, type, amount, points, allowed_groups, forums, forums_type, forums_type_amount, hours',
         "active='1' AND points>'0'"
     );
 
@@ -66,7 +66,7 @@ function cache_update(): array
             'type' => (int)$package_data['type'],
             'amount' => (int)$package_data['amount'],
             'points' => (float)$package_data['points'],
-            'groups' => $package_data['groups'],
+            'allowed_groups' => $package_data['allowed_groups'],
             'forums' => $package_data['forums'],
             'forums_type' => (int)$package_data['forums_type'],
             'forums_type_amount' => (int)$package_data['forums_type_amount'],

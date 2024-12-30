@@ -31,6 +31,7 @@ declare(strict_types=1);
 namespace Newpoints\ActivityRewards\Admin;
 
 use function Newpoints\ActivityRewards\Core\cache_update;
+use function Newpoints\Admin\db_build_field_definition;
 use function Newpoints\Admin\db_drop_tables;
 use function Newpoints\Admin\db_verify_columns_exists;
 use function Newpoints\Admin\db_verify_tables;
@@ -87,7 +88,7 @@ const TABLES_DATA = [
             'size' => '16,2',
             'default' => 0
         ],
-        'groups' => [
+        'allowed_groups' => [
             'type' => 'TEXT',
             'null' => true
         ],
@@ -232,6 +233,15 @@ function plugin_activation(): bool
 
     if ($db->table_exists('ougc_points_activity_rewards_logs')) {
         $db->rename_table('ougc_points_activity_rewards_logs', 'newpoints_activity_rewards_logs');
+    }
+
+    if ($db->field_exists('groups', 'newpoints_activity_rewards_packages')) {
+        $db->rename_column(
+            'newpoints_activity_rewards_packages',
+            'groups',
+            'allowed_groups',
+            db_build_field_definition(TABLES_DATA['newpoints_activity_rewards_packages']['allowed_groups'])
+        );
     }
 
     /*~*~* RUN UPDATES END *~*~*/

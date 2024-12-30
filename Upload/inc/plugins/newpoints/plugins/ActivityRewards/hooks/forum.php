@@ -103,7 +103,7 @@ function newpoints_terminate()
 
         $package_data = $packages_cache[$package_id] ?? [];
 
-        if (empty($package_data) || !is_member($package_data['groups'])) {
+        if (empty($package_data) || !is_member($package_data['allowed_groups'])) {
             error_no_permission();
         }
 
@@ -176,7 +176,7 @@ function newpoints_terminate()
     $forums_cache = cache_forums();
 
     foreach ($packages_cache as $package_id => $package_data) {
-        if (!is_member($package_data['groups'])) {
+        if (!is_member($package_data['allowed_groups'])) {
             continue;
         }
 
