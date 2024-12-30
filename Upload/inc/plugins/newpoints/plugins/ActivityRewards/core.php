@@ -108,7 +108,7 @@ function get_user_activity_amount(int $package_id): int
 
     $where_clauses = $forums_ids = [];
 
-    $forum_type = 0;
+    $forum_type = ACTIVITY_REWARDS_FORUM_TYPE_ANY;
 
     if (!empty($package_data['forums'])) {
         $forums_ids = array_map('intval', explode(',', $package_data['forums']));
@@ -132,13 +132,17 @@ function get_user_activity_amount(int $package_id): int
 
             $query_options = [];
 
+            $query_fields = ['COUNT(t.tid) as total_threads'];
+
             if ($forum_type === ACTIVITY_REWARDS_FORUM_TYPE_ALL) {
-                $query_options['group_by'] = 'fid';
+                $query_options['group_by'] = 't.fid';
+
+                $query_fields[] = 't.fid';
             }
 
             $query = $db->simple_select(
                 "threads t LEFT JOIN {$db->table_prefix}posts p ON(p.pid=t.firstpost)",
-                't.fid, COUNT(t.tid) as total_threads',
+                implode(', ', $query_fields),
                 implode(' AND ', $where_clauses),
                 $query_options
             );
@@ -163,6 +167,7 @@ function get_user_activity_amount(int $package_id): int
 
             break;
         case ACTIVITY_REWARDS_TYPE_POSTS:
+
             $where_clauses[] = "p.uid='{$current_user_id}'";
 
             $where_clauses[] = "p.dateline>'{$interval}'";
@@ -173,13 +178,17 @@ function get_user_activity_amount(int $package_id): int
 
             $query_options = [];
 
+            $query_fields = ['COUNT(p.pid) as total_posts'];
+
             if ($forum_type === ACTIVITY_REWARDS_FORUM_TYPE_ALL) {
                 $query_options['group_by'] = 'p.fid';
+
+                $query_fields[] = 'p.fid';
             }
 
             $query = $db->simple_select(
                 "posts p LEFT JOIN {$db->table_prefix}threads t ON(t.tid=p.tid)",
-                'p.fid, COUNT(p.pid) as total_posts',
+                implode(', ', $query_fields),
                 implode(' AND ', $where_clauses),
                 $query_options
             );
