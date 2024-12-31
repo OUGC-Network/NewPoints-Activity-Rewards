@@ -235,7 +235,8 @@ function plugin_activation(): bool
         $db->rename_table('ougc_points_activity_rewards_logs', 'newpoints_activity_rewards_logs');
     }
 
-    if ($db->field_exists('groups', 'newpoints_activity_rewards_packages')) {
+    if ($db->table_exists('newpoints_activity_rewards_packages') &&
+        $db->field_exists('groups', 'newpoints_activity_rewards_packages')) {
         $db->rename_column(
             'newpoints_activity_rewards_packages',
             'groups',
