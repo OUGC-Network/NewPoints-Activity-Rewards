@@ -37,6 +37,7 @@ use function Newpoints\ActivityRewards\Core\get_user_activity_amount;
 use function Newpoints\Core\get_setting;
 use function Newpoints\Core\language_load;
 use function Newpoints\Core\log_add;
+use function Newpoints\Core\main_file_name;
 use function Newpoints\Core\page_build_purchase_confirmation;
 use function Newpoints\Core\points_add_simple;
 use function Newpoints\Core\points_format;
@@ -421,4 +422,37 @@ function newpoints_logs_end(): bool
     }
 
     return true;
+}
+
+function fetch_wol_activity_end(array &$hook_parameters): array
+{
+    global $lang;
+
+    if (my_strpos($hook_parameters['location'], main_file_name()) === false ||
+        my_strpos($hook_parameters['location'], 'action=' . get_setting('activity_rewards_action_name')) === false) {
+        return $hook_parameters;
+    }
+
+    $hook_parameters['activity'] = 'newpoints_activity_rewards';
+
+    return $hook_parameters;
+}
+
+function build_friendly_wol_location_end(array $hook_parameters): array
+{
+    global $mybb, $lang;
+
+    language_load('activity_rewards');
+
+    switch ($hook_parameters['user_activity']['activity']) {
+        case 'newpoints_activity_rewards':
+            $hook_parameters['location_name'] = $lang->sprintf(
+                $lang->newpoints_activity_rewards_wol_location,
+                $mybb->settings['bburl'],
+                url_handler_build(['action' => get_setting('activity_rewards_action_name')])
+            );
+            break;
+    }
+
+    return $hook_parameters;
 }

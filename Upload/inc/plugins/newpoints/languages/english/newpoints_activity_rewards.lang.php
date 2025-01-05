@@ -63,6 +63,8 @@ $l = [
 
     'newpoints_activity_rewards_page_success' => 'Your request was successful, the points have been added to your account.<br /><br />You will be redirected back to the previous page.',
 
+    'newpoints_activity_rewards_wol_location' => 'Viewing the <a href="{1}/{2}">Activity Rewards</a> page',
+
     'newpoints_activity_rewards_page_logs_activity_rewards' => 'Activity Rewards',
 
     'newpoints_activity_rewards_page_logs_primary' => '<i>{1}</i> package',
