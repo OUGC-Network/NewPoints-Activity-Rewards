@@ -150,8 +150,8 @@ function plugin_information(): array
         'website' => 'https://ougc.network',
         'author' => 'Omar G.',
         'authorsite' => 'https://ougc.network',
-        'version' => '3.1.1',
-        'versioncode' => 3101,
+        'version' => '3.1.2',
+        'versioncode' => 3102,
         'compatibility' => '31*',
         'codename' => 'ougc_points_activity_rewards'
         //'codename' => 'newpoints_activity_rewards'
