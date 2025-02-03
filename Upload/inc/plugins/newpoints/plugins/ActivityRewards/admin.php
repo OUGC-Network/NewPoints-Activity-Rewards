@@ -85,7 +85,8 @@ const TABLES_DATA = [
         ],
         'points' => [
             'type' => 'DECIMAL',
-            'size' => '16,2',
+            'unsigned' => true,
+            'size' => '16,4',
             'default' => 0
         ],
         'allowed_groups' => [

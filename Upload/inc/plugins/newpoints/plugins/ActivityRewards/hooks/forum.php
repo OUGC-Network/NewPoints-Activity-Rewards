@@ -426,8 +426,6 @@ function newpoints_logs_end(): bool
 
 function fetch_wol_activity_end(array &$hook_parameters): array
 {
-    global $lang;
-
     if (my_strpos($hook_parameters['location'], main_file_name()) === false ||
         my_strpos($hook_parameters['location'], 'action=' . get_setting('activity_rewards_action_name')) === false) {
         return $hook_parameters;
@@ -438,7 +436,7 @@ function fetch_wol_activity_end(array &$hook_parameters): array
     return $hook_parameters;
 }
 
-function build_friendly_wol_location_end(array $hook_parameters): array
+function build_friendly_wol_location_end(array &$hook_parameters): array
 {
     global $mybb, $lang;
 
