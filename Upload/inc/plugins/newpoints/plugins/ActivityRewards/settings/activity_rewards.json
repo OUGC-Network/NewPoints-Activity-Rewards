@@ -6,5 +6,9 @@
   "menu_order": {
     "type": "numeric",
     "value": 160
+  },
+  "enable_dvz_stream": {
+    "type": "yesno",
+    "value": 1
   }
 }

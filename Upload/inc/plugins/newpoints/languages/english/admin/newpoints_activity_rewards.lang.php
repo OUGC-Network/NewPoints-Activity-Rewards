@@ -36,6 +36,8 @@ $l = [
     'setting_newpoints_activity_rewards_action_name_desc' => 'Select the action input name to use for this feature.',
     'setting_newpoints_activity_rewards_menu_order' => 'Menu Order',
     'setting_newpoints_activity_rewards_menu_order_desc' => 'Order in the Newpoints menu item.',
+    'setting_newpoints_activity_rewards_enable_dvz_stream' => 'Enable DVZ Stream Integration',
+    'setting_newpoints_activity_rewards_enable_dvz_stream_desc' => 'Enable DVZ Stream integration for activity rewards.',
 
     'newpoints_activity_rewards_admin_permission' => 'Can manage activity rewards?',
 

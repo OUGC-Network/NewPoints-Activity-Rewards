@@ -51,6 +51,28 @@ use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_REPUTATION;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_THREADS;
 use const Newpoints\Core\LOGGING_TYPE_INCOME;
 
+function global_intermediate(): bool
+{
+    global $mybb;
+
+    if (get_setting('activity_rewards_enable_dvz_stream') && isset($mybb->settings['dvz_stream_active_streams'])) {
+        $mybb->settings['dvz_stream_active_streams'] .= ',newpoints_activity_rewards';
+    }
+
+    return true;
+}
+
+function xmlhttp(): bool
+{
+    global $mybb;
+
+    if (get_setting('activity_rewards_enable_dvz_stream') && isset($mybb->settings['dvz_stream_active_streams'])) {
+        $mybb->settings['dvz_stream_active_streams'] .= ',newpoints_activity_rewards';
+    }
+
+    return true;
+}
+
 function newpoints_global_start(array &$hook_arguments): array
 {
     $hook_arguments['newpoints.php'] = array_merge($hook_arguments['newpoints.php'], [

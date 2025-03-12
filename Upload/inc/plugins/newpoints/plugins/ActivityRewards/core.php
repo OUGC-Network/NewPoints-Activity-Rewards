@@ -30,6 +30,8 @@ declare(strict_types=1);
 
 namespace Newpoints\ActivityRewards\Core;
 
+use function Newpoints\Core\alert_send;
+
 use const Newpoints\ActivityRewards\ROOT;
 
 const ACTIVITY_REWARDS_TYPE_THREADS = 1;
@@ -92,7 +94,7 @@ function cache_get(): array
     return $packages_cache;
 }
 
-function get_user_activity_amount(int $package_id): int
+function get_user_activity_amount(int $package_id, int $user_id): int
 {
     global $db, $mybb;
 
@@ -101,8 +103,6 @@ function get_user_activity_amount(int $package_id): int
     $package_data = &$packages_cache[$package_id];
 
     $interval = TIME_NOW - (60 * 60 * $package_data['hours']);
-
-    $current_user_id = (int)$mybb->user['uid'];
 
     $user_amount = 0;
 
@@ -124,7 +124,7 @@ function get_user_activity_amount(int $package_id): int
 
     switch ($package_data['type']) {
         case ACTIVITY_REWARDS_TYPE_THREADS:
-            $where_clauses[] = "t.uid='{$current_user_id}'";
+            $where_clauses[] = "t.uid='{$user_id}'";
 
             $where_clauses[] = "t.dateline>'{$interval}'";
 
@@ -168,7 +168,7 @@ function get_user_activity_amount(int $package_id): int
             break;
         case ACTIVITY_REWARDS_TYPE_POSTS:
 
-            $where_clauses[] = "p.uid='{$current_user_id}'";
+            $where_clauses[] = "p.uid='{$user_id}'";
 
             $where_clauses[] = "p.dateline>'{$interval}'";
 
@@ -213,7 +213,7 @@ function get_user_activity_amount(int $package_id): int
 
             break;
         case ACTIVITY_REWARDS_TYPE_REPUTATION:
-            $where_clauses[] = "r.uid='{$current_user_id}'";
+            $where_clauses[] = "r.uid='{$user_id}'";
 
             $where_clauses[] = "r.dateline>'{$interval}'";
 
@@ -230,13 +230,196 @@ function get_user_activity_amount(int $package_id): int
     return $user_amount;
 }
 
-function package_delete(int $package_id): bool
+function package_insert(array $package_data, bool $is_update = false, int $package_id = 0): int
 {
     global $db;
 
-    $db->delete_query('newpoints_activity_rewards_packages', "pid='{$package_id}'");
+    $insert_data = [];
 
-    $db->delete_query('newpoints_activity_rewards_logs', "pid='{$package_id}'");
+    if (isset($package_data['title'])) {
+        $insert_data['title'] = $db->escape_string($package_data['title']);
+    }
+
+    if (isset($package_data['description'])) {
+        $insert_data['description'] = $db->escape_string($package_data['description']);
+    }
+
+    if (isset($package_data['type'])) {
+        $insert_data['type'] = (int)$package_data['type'];
+    }
+
+    if (isset($package_data['active'])) {
+        $insert_data['active'] = (int)$package_data['active'];
+    }
+
+    if (isset($package_data['amount'])) {
+        $insert_data['amount'] = (int)$package_data['amount'];
+    }
+
+    if (isset($package_data['points'])) {
+        $insert_data['points'] = (float)$package_data['points'];
+    }
+
+    if (isset($package_data['allowed_groups'])) {
+        $insert_data['allowed_groups'] = $db->escape_string($package_data['allowed_groups']);
+    }
+
+    if (isset($package_data['forums'])) {
+        $insert_data['forums'] = $db->escape_string($package_data['forums']);
+    }
+
+    if (isset($package_data['forums_type'])) {
+        $insert_data['forums_type'] = (int)$package_data['forums_type'];
+    }
+
+    if (isset($package_data['forums_type_amount'])) {
+        $insert_data['forums_type_amount'] = (int)$package_data['forums_type_amount'];
+    }
+
+    if (isset($package_data['hours'])) {
+        $insert_data['hours'] = (int)$package_data['hours'];
+    }
+
+    if ($is_update) {
+        $db->update_query('newpoints_activity_rewards_packages', $insert_data, "pid='{$package_id}'");
+
+        return $package_id;
+    }
+
+    return (int)$db->insert_query('newpoints_activity_rewards_packages', $insert_data);
+}
+
+function package_update(array $package_data, int $package_id): int
+{
+    return package_insert($package_data, true, $package_id);
+}
+
+function package_get(array $where_clauses = [], array $query_fields = [], array $query_options = []): array
+{
+    global $db;
+
+    $query_fields[] = 'pid';
+
+    $query = $db->simple_select(
+        'newpoints_activity_rewards_packages',
+        implode(',', $query_fields),
+        implode(' AND ', $where_clauses),
+        $query_options
+    );
+
+    if (isset($query_options['limit']) && $query_options['limit'] == 1) {
+        return (array)$db->fetch_array($query);
+    }
+
+    $package_objects = [];
+
+    while ($package_data = $db->fetch_array($query)) {
+        $package_objects[(int)$package_data['pid']] = $package_data;
+    }
+
+    return $package_objects;
+}
+
+function package_delete(array $where_clauses): bool
+{
+    global $db;
+
+    foreach (package_get($where_clauses) as $package_id => $package_data) {
+        log_delete(["pid='{$package_id}'"]);
+
+        $db->delete_query('newpoints_activity_rewards_packages', "pid='{$package_id}'");
+    }
+
+    return true;
+}
+
+function log_insert(array $log_data, bool $is_update = false, int $log_id = 0): int
+{
+    global $db;
+
+    $insert_data = [];
+
+    if (isset($log_data['pid'])) {
+        $insert_data['pid'] = (int)$log_data['pid'];
+    }
+
+    if (isset($log_data['uid'])) {
+        $insert_data['uid'] = (int)$log_data['uid'];
+    }
+
+    if (isset($log_data['dateline'])) {
+        $insert_data['dateline'] = (int)$log_data['dateline'];
+    } elseif (!$is_update) {
+        $insert_data['dateline'] = TIME_NOW;
+    }
+
+    if ($is_update) {
+        $db->update_query('newpoints_activity_rewards_logs', $insert_data, "lid='{$log_id}'");
+
+        return $log_id;
+    }
+
+    return (int)$db->insert_query('newpoints_activity_rewards_logs', $insert_data);
+}
+
+function log_get(array $where_clauses, array $query_fields = [], array $query_options = []): array
+{
+    global $db;
+
+    $query_fields[] = 'lid';
+
+    $query = $db->simple_select(
+        'newpoints_activity_rewards_logs',
+        implode(',', $query_fields),
+        implode(' AND ', $where_clauses),
+        $query_options
+    );
+
+    if (isset($query_options['limit']) && $query_options['limit'] == 1) {
+        return (array)$db->fetch_array($query);
+    }
+
+    $log_objects = [];
+
+    while ($log_data = $db->fetch_array($query)) {
+        $log_objects[(int)$log_data['lid']] = $log_data;
+    }
+
+    return $log_objects;
+}
+
+function log_delete(array $where_clauses): bool
+{
+    global $db;
+
+    $db->delete_query('newpoints_activity_rewards_logs', implode(' AND ', $where_clauses));
+
+    return true;
+}
+
+function notify_user_rewards(int $user_id): bool
+{
+    foreach (cache_get() as $package_id => $package_data) {
+        $user_amount = get_user_activity_amount($package_id, $user_id);
+
+        $package_interval = TIME_NOW - (60 * 60 * $package_data['hours']);
+
+        if (log_get(["pid='{$package_id}'", "uid='{$user_id}'", "dateline>='{$package_interval}'"])) {
+            continue;
+        }
+
+        $package_amount = $package_data['amount'];
+
+        if ($user_amount > $package_amount) {
+            $user_amount -= $package_amount;
+        }
+
+        if ($user_amount < $package_amount) {
+            continue;
+        }
+
+        alert_send($user_id, $package_id, 'activity_rewards', 'threads');
+    }
 
     return true;
 }

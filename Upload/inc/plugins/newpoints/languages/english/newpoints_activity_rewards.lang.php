@@ -71,4 +71,10 @@ $l = [
     'newpoints_activity_rewards_page_logs_secondary_threads' => 'Required Threads: <i>{1}</i>',
     'newpoints_activity_rewards_page_logs_secondary_posts' => 'Required Posts: <i>{1}</i>',
     'newpoints_activity_rewards_page_logs_secondary_reputation' => 'Required Reputations: <i>{1}</i>',
+
+    'newpoints_activity_rewards_dvz_stream' => 'Activity Rewards',
+    'newpoints_activity_rewards_dvz_stream_event' => 'Activity Rewards',
+    'newpoints_activity_rewards_dvz_stream_threads' => 'Claimed {1} {2} for threads activity rewards.',
+    'newpoints_activity_rewards_dvz_stream_posts' => 'Claimed {1} {2} for posts activity rewards.',
+    'newpoints_activity_rewards_dvz_stream_reputation' => 'Claimed {1} {2} for reputation activity rewards.',
 ];
