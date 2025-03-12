@@ -108,3 +108,18 @@ function newpoints_admin_permissions(&$permissions)
 
     $permissions['activity_rewards'] = $lang->newpoints_activity_rewards_admin_permission;
 }
+
+function newpoints_my_alerts_install(array &$hook_arguments): array
+{
+    $hook_arguments['newpoints_my_alerts_formatters'][] = [
+        'plugin_code' => 'activity_rewards',
+        'alert_types' => ['threads', 'posts', 'reputation'],
+    ];
+
+    return $hook_arguments;
+}
+
+function newpoints_my_alerts_uninstall(array &$hook_arguments): array
+{
+    return newpoints_my_alerts_install($hook_arguments);
+}

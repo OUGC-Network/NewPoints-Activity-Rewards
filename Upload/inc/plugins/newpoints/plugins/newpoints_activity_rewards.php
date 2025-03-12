@@ -55,6 +55,10 @@ if (defined('IN_ADMINCP')) {
     add_hooks('Newpoints\ActivityRewards\Hooks\Forum');
 }
 
+require_once ROOT . '/hooks/shared.php';
+
+add_hooks('Newpoints\ActivityRewards\Hooks\Shared');
+
 function newpoints_activity_rewards_info(): array
 {
     return plugin_information();

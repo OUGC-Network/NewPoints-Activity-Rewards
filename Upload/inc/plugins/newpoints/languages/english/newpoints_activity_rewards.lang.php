@@ -72,6 +72,14 @@ $l = [
     'newpoints_activity_rewards_page_logs_secondary_posts' => 'Required Posts: <i>{1}</i>',
     'newpoints_activity_rewards_page_logs_secondary_reputation' => 'Required Reputations: <i>{1}</i>',
 
+    'newpoints_alert_text_activity_rewards_threads' => 'Threads activity rewards are ready for you to claim.',
+    'newpoints_alert_text_activity_rewards_posts' => 'Posts activity rewards are ready for you to claim.',
+    'newpoints_alert_text_activity_rewards_reputation' => 'Reputation activity rewards are ready for you to claim.',
+
+    'myalerts_setting_newpoints_activity_rewards_threads' => 'Receive alert when threads activity rewards are available?',
+    'myalerts_setting_newpoints_activity_rewards_posts' => 'Receive alert when posts activity rewards are available?',
+    'myalerts_setting_newpoints_activity_rewards_reputation' => 'Receive alert when reputation activity rewards are available?',
+
     'newpoints_activity_rewards_dvz_stream' => 'Activity Rewards',
     'newpoints_activity_rewards_dvz_stream_event' => 'Activity Rewards',
     'newpoints_activity_rewards_dvz_stream_threads' => 'Claimed {1} {2} for threads activity rewards.',

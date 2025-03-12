@@ -476,3 +476,33 @@ function build_friendly_wol_location_end(array &$hook_parameters): array
 
     return $hook_parameters;
 }
+
+function newpoints_my_alerts_language_load(array &$hook_arguments): array
+{
+    language_load('activity_rewards');
+
+    return $hook_arguments;
+}
+
+function newpoints_my_alerts_init(array &$hook_arguments): array
+{
+    $hook_arguments['newpoints_my_alerts_formatters'][] = [
+        'plugin_code' => 'activity_rewards',
+        'alert_types' => ['threads', 'posts', 'reputation'],
+        'formatters_directory' => ROOT . '/alert_formatters/',
+        'namespace' => 'Newpoints\ActivityRewards\MyAlerts\Formatters\\'
+    ];
+
+    return $hook_arguments;
+}
+
+function reputation_do_add_process(): bool
+{
+    global $reputation;
+
+    $reputation_user_id = (int)$reputation['uid'];
+
+    notify_user_rewards($reputation_user_id);
+
+    return true;
+}
