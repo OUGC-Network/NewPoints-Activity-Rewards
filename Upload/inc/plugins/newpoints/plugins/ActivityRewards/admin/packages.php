@@ -28,6 +28,9 @@
 
 use function Newpoints\ActivityRewards\Core\cache_update;
 use function Newpoints\ActivityRewards\Core\package_delete;
+use function Newpoints\ActivityRewards\Core\package_get;
+use function Newpoints\ActivityRewards\Core\package_insert;
+use function Newpoints\ActivityRewards\Core\package_update;
 use function Newpoints\Core\language_load;
 use function Newpoints\Core\url_handler_build;
 use function Newpoints\Core\url_handler_get;
@@ -41,7 +44,7 @@ use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_THREADS;
 
 url_handler_set('index.php?module=newpoints-activity_rewards');
 
-global $db, $lang, $mybb, $page, $plugins;
+global $lang, $mybb, $page, $plugins;
 
 language_load('activity_rewards');
 
@@ -78,9 +81,7 @@ if ($mybb->get_input('action') === 'delete') {
         admin_redirect(url_handler_get());
     }
 
-    $query = $db->simple_select('newpoints_activity_rewards_packages', '*', "pid='{$package_id}'");
-
-    if (!$db->num_rows($query)) {
+    if (!package_get(["pid='{$package_id}'"])) {
         flash_message($lang->newpoints_activity_rewards_admin_error_invalid_package, 'error');
 
         admin_redirect(url_handler_get());
@@ -91,7 +92,7 @@ if ($mybb->get_input('action') === 'delete') {
             admin_redirect(url_handler_get());
         }
 
-        package_delete($package_id);
+        package_delete(["pid='{$package_id}'"]);
 
         cache_update();
 
@@ -118,9 +119,24 @@ if ($mybb->get_input('action') === 'delete') {
     $page->output_header($lang->newpoints_activity_rewards_admin_title);
 
     if (!$add_page) {
-        $query = $db->simple_select('newpoints_activity_rewards_packages', '*', "pid='{$package_id}'");
+        $package_data = package_get(
+            ["pid='{$package_id}'"],
+            [
+                'title',
+                'description',
+                'type',
+                'active',
+                'amount',
+                'points',
+                'allowed_groups',
+                'forums',
+                'forums_type',
+                'forums_type_amount',
+                'hours'
+            ]
+        );
 
-        if (!($package_data = $db->fetch_array($query))) {
+        if (!$package_data) {
             admin_redirect(url_handler_get());
         }
     }
@@ -157,9 +173,9 @@ if ($mybb->get_input('action') === 'delete') {
             }
 
             if ($add_page) {
-                $package_id = $db->insert_query('newpoints_activity_rewards_packages', $update_data);
+                package_insert($update_data);
             } else {
-                $db->update_query('newpoints_activity_rewards_packages', $update_data, "pid='{$package_id}'");
+                package_update($update_data, $package_id);
             }
 
             cache_update();
@@ -380,14 +396,13 @@ if ($mybb->get_input('action') === 'delete') {
 
     $table->construct_header($lang->options, ['width' => '20%', 'class' => 'align_center']);
 
-    $query = $db->simple_select(
-        'newpoints_activity_rewards_packages',
-        '*',
-        '',
+    $package_objects = package_get(
+        [],
+        ['type', 'title', 'description', 'active'],
         ['order_by' => 'type']
     );
 
-    if (!$db->num_rows($query)) {
+    if (!$package_objects) {
         $table->construct_cell(
             '<div align="center">' . $lang->newpoints_activity_rewards_admin_view_table_empty . '</div>',
             ['colspan' => 4]
@@ -395,7 +410,7 @@ if ($mybb->get_input('action') === 'delete') {
 
         $table->construct_row();
     } else {
-        while ($package_data = $db->fetch_array($query)) {
+        foreach ($package_objects as $package_data) {
             switch ($package_data['type']) {
                 case ACTIVITY_REWARDS_TYPE_THREADS:
                     $table->construct_cell($lang->newpoints_activity_rewards_admin_view_package_type_threads);

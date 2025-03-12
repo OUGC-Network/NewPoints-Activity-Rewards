@@ -32,8 +32,8 @@ namespace Newpoints\ActivityRewards\Hooks\Forum;
 
 use MyBB;
 
-use function Newpoints\ActivityRewards\Core\cache_get;
-use function Newpoints\ActivityRewards\Core\get_user_activity_amount;
+use function Newpoints\ActivityRewards\Core\log_get;
+use function Newpoints\ActivityRewards\Core\log_insert;
 use function Newpoints\Core\get_setting;
 use function Newpoints\Core\language_load;
 use function Newpoints\Core\log_add;
@@ -41,15 +41,19 @@ use function Newpoints\Core\main_file_name;
 use function Newpoints\Core\page_build_purchase_confirmation;
 use function Newpoints\Core\points_add_simple;
 use function Newpoints\Core\points_format;
-use function Newpoints\ActivityRewards\Core\templates_get;
 use function Newpoints\Core\url_handler_build;
+use function Newpoints\ActivityRewards\Core\cache_get;
+use function Newpoints\ActivityRewards\Core\get_user_activity_amount;
+use function Newpoints\ActivityRewards\Core\notify_user_rewards;
+use function Newpoints\ActivityRewards\Core\templates_get;
 
+use const Newpoints\Core\LOGGING_TYPE_INCOME;
+use const Newpoints\ActivityRewards\ROOT;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_FORUM_TYPE_ANY;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_FORUM_TYPE_ALL;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_POSTS;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_REPUTATION;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_THREADS;
-use const Newpoints\Core\LOGGING_TYPE_INCOME;
 
 function global_intermediate(): bool
 {
@@ -93,7 +97,7 @@ function newpoints_terminate()
         return;
     }
 
-    global $db, $lang, $cache, $theme;
+    global $lang, $cache, $theme;
     global $header, $headerinclude, $footer;
     global $newpoints_menu, $newpoints_errors, $newpoints_content, $newpoints_buttons, $newpoints_pagination, $newpoints_file, $newpoints_additional;
     global $action_name;
@@ -130,7 +134,7 @@ function newpoints_terminate()
             error_no_permission();
         }
 
-        $user_amount = get_user_activity_amount($package_id);
+        $user_amount = get_user_activity_amount($package_id, $current_user_id);
 
         $package_amount = $package_data['amount'];
 
@@ -140,13 +144,7 @@ function newpoints_terminate()
 
         $package_interval = TIME_NOW - (60 * 60 * $package_data['hours']);
 
-        $query = $db->simple_select(
-            'newpoints_activity_rewards_logs',
-            '*',
-            "pid='{$package_id}' AND uid='{$current_user_id}' AND dateline>='{$package_interval}'"
-        );
-
-        if ($db->num_rows($query)) {
+        if (log_get(["pid='{$package_id}'", "uid='{$current_user_id}'", "dateline>='{$package_interval}'"])) {
             error_no_permission();
         }
 
@@ -170,6 +168,11 @@ function newpoints_terminate()
 
         points_add_simple($current_user_id, $package_points);
 
+        $log_id = log_insert([
+            'pid' => $package_id,
+            'uid' => $current_user_id,
+        ]);
+
         log_add(
             'activity_rewards',
             '',
@@ -178,15 +181,9 @@ function newpoints_terminate()
             $package_points,
             $package_id,
             $package_amount,
-            0,
+            $log_id,
             LOGGING_TYPE_INCOME
         );
-
-        $db->insert_query('newpoints_activity_rewards_logs', [
-            'pid' => $package_id,
-            'uid' => $current_user_id,
-            'dateline' => TIME_NOW
-        ]);
 
         redirect(
             "{$mybb->settings['bburl']}/{$page_url}",
@@ -237,20 +234,14 @@ function newpoints_terminate()
 
         $package_interval = TIME_NOW - (60 * 60 * $package_data['hours']);
 
-        $query = $db->simple_select(
-            'newpoints_activity_rewards_logs',
-            '*',
-            "pid='{$package_id}' AND uid='{$current_user_id}' AND dateline>='{$package_interval}'"
-        );
-
         $button_disabled_element = '';
 
-        $user_amount = get_user_activity_amount($package_id);
+        $user_amount = get_user_activity_amount($package_id, $current_user_id);
 
-        if ($db->num_rows($query)) {
+        if (log_get(["pid='{$package_id}'", "uid='{$current_user_id}'", "dateline>='{$package_interval}'"])) {
             $button_disabled_element = 'disabled="disabled"';
 
-            if ($user_amount >= $package_amount) {
+            if ($user_amount > $package_amount) {
                 $user_amount -= $package_amount;
             }
         }
