@@ -117,6 +117,8 @@ Below you can find a description of the plugin settings.
     - _Select the action input name to use for this feature._
 - **Menu Order** `numeric`
     - _Order in the Newpoints menu item._
+- **Enable DVZ Stream Integration** `yesNo`
+    - _Enable DVZ Stream integration for activity rewards._
 
 [Go up to Table of Contents](#table_of_contents)
 
