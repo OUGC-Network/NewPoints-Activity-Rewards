@@ -30,7 +30,6 @@ declare(strict_types=1);
 
 namespace Newpoints\ActivityRewards\Admin;
 
-use function Newpoints\ActivityRewards\Core\cache_update;
 use function Newpoints\Admin\db_build_field_definition;
 use function Newpoints\Admin\db_drop_tables;
 use function Newpoints\Admin\db_verify_columns_exists;
@@ -43,12 +42,14 @@ use function Newpoints\Core\plugins_version_get;
 use function Newpoints\Core\plugins_version_update;
 use function Newpoints\Core\settings_remove;
 use function Newpoints\Core\templates_remove;
+use function Newpoints\ActivityRewards\Core\cache_update;
 
+use const PLUGINLIBRARY;
+use const Newpoints\DECIMAL_DATA_TYPE_SIZE;
+use const Newpoints\Admin\PERMISSION_REMOVE;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_POSTS;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_REPUTATION;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_THREADS;
-use const Newpoints\Admin\PERMISSION_REMOVE;
-use const PLUGINLIBRARY;
 
 const TABLES_DATA = [
     'newpoints_activity_rewards_packages' => [
@@ -86,7 +87,7 @@ const TABLES_DATA = [
         'points' => [
             'type' => 'DECIMAL',
             'unsigned' => true,
-            'size' => '16,4',
+            'size' => DECIMAL_DATA_TYPE_SIZE,
             'default' => 0
         ],
         'allowed_groups' => [

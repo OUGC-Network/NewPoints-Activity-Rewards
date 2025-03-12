@@ -102,7 +102,7 @@ $stream->addProcessHandler(function (StreamEvent $streamEvent) {
         'action' => get_setting('activity_rewards_action_name')
     ]);
 
-    $stream_points = strip_tags(points_format((float)$stream_data['points']));
+    $stream_points = strip_tags(points_format($stream_data['points']));
 
     switch ($stream_data['type']) {
         case ACTIVITY_REWARDS_TYPE_THREADS:

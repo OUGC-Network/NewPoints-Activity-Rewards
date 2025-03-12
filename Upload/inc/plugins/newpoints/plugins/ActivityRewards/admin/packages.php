@@ -26,16 +26,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
+use function Newpoints\Core\language_load;
+use function Newpoints\Core\url_handler_build;
+use function Newpoints\Core\url_handler_get;
+use function Newpoints\Core\url_handler_set;
 use function Newpoints\ActivityRewards\Core\cache_update;
 use function Newpoints\ActivityRewards\Core\package_delete;
 use function Newpoints\ActivityRewards\Core\package_get;
 use function Newpoints\ActivityRewards\Core\package_insert;
 use function Newpoints\ActivityRewards\Core\package_update;
-use function Newpoints\Core\language_load;
-use function Newpoints\Core\url_handler_build;
-use function Newpoints\Core\url_handler_get;
-use function Newpoints\Core\url_handler_set;
 
+use const Newpoints\DECIMAL_DATA_TYPE_STEP;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_FORUM_TYPE_ANY;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_FORUM_TYPE_ALL;
 use const Newpoints\ActivityRewards\Core\ACTIVITY_REWARDS_TYPE_POSTS;
@@ -284,7 +285,10 @@ if ($mybb->get_input('action') === 'delete') {
         $form->generate_numeric_field(
             'points',
             $mybb->get_input('points', MyBB::INPUT_FLOAT),
-            ['step' => '0.01', 'min' => '0']
+            [
+                'min' => '0',
+                'step' => DECIMAL_DATA_TYPE_STEP
+            ]
         )
     );
 
