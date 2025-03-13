@@ -66,7 +66,7 @@ function global_intermediate(): bool
     return true;
 }
 
-function xmlhttp(): bool
+function xmlhttp09(): bool
 {
     global $mybb;
 
