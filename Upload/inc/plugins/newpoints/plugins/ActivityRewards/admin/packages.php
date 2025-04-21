@@ -134,7 +134,8 @@ if ($mybb->get_input('action') === 'delete') {
                 'forums_type',
                 'forums_type_amount',
                 'hours'
-            ]
+            ],
+            ['limit' => 1]
         );
 
         if (!$package_data) {
@@ -189,6 +190,8 @@ if ($mybb->get_input('action') === 'delete') {
 
             admin_redirect(url_handler_build(['action' => 'edit', 'package_id' => $package_id]));
         }
+    } elseif(isset($package_data)) {
+        $mybb->input = array_merge($package_data, $mybb->input);
     }
 
     if ($add_page) {
@@ -199,30 +202,6 @@ if ($mybb->get_input('action') === 'delete') {
         $page->output_nav_tabs($sub_tabs, 'newpoints_activity_rewards_edit');
 
         $form_url = url_handler_build(['action' => 'edit', 'package_id' => $package_id]);
-    }
-
-    foreach (
-        [
-            'title',
-            'description',
-            'type',
-            'active',
-            'amount',
-            'points',
-            'allowed_groups',
-            'forums',
-            'forums_type',
-            'forums_type_amount',
-            'hours'
-        ] as $key
-    ) {
-        if (!isset($mybb->input[$key])) {
-            if (isset($package_data[$key])) {
-                $mybb->input[$key] = $package_data[$key];
-            } else {
-                $mybb->input[$key] = '';
-            }
-        }
     }
 
     $form = new Form($form_url, 'post', 'newpoints_activity_rewards');

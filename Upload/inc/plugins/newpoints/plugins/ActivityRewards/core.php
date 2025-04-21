@@ -307,7 +307,7 @@ function package_get(array $where_clauses = [], array $query_fields = [], array 
         $query_options
     );
 
-    if (isset($query_options['limit']) && $query_options['limit'] == 1) {
+    if (isset($query_options['limit']) && $query_options['limit'] === 1) {
         return (array)$db->fetch_array($query);
     }
 
