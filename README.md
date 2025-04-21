@@ -1,3 +1,9 @@
+<p align="center">
+    <a href="" rel="noopener">
+        <img width="700" height="400" src="https://github.com/user-attachments/assets/817c211a-166c-48a3-bd09-a3d4be5f4c7b" alt="Project logo">
+    </a>
+</p>
+
 <h3 align="center">NewPoints Activity Rewards</h3>
 
 <div align="center">
